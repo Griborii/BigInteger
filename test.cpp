@@ -17,9 +17,16 @@ class BigInt {
 		bool operator==(const BigInt&) const;
 		friend ostream& operator<<(ostream&, BigInt);
 	    ~BigInt(){};
-		vector<int> operator+(const BigInt&) const;
-		vector<int> operator-(const BigInt&) const;
-		vector<int> operator*(const BigInt&) const;
+		BigInt operator+(const BigInt&) const;
+		BigInt operator-(const BigInt&) const;
+		BigInt operator-() const{};
+		BigInt operator*(const BigInt&) const;
+		bool operator>(const BigInt&) const;
+		BigInt operator/(const BigInt&) const{};
+		bool operator<(const BigInt&) const;
+		bool operator<=(const BigInt&) const;
+		bool operator>=(const BigInt&) const;
+		BigInt operator%(const BigInt&) const;
 	private:
 	    bool Znak;
 		vector<int> Maks;
@@ -44,19 +51,18 @@ BigInt& BigInt::operator=(const BigInt& copied) {
     return *this;
 }
 BigInt& BigInt::operator=(long long n) {
-	BigInt b = (*this);
 	if (n > 0) {
-		b.Znak = true;
+		(*this).Znak = true;
 	}
 	else {
-		b.Znak = false;
+		(*this).Znak = false;
 		n = -n;
 	}
     while (n > 0) {
-    	b.Maks.push_back(n % 10);
+    	(*this).Maks.push_back(n % 10);
     	n = n / 10;
 	}
-	return b;
+	return*this;
 }
 ostream& operator<<(ostream& Out, BigInt x) {
 	for (int i = 0; i < x.Maks.size(); ++i) {
@@ -75,6 +81,39 @@ bool BigInt::operator==(const BigInt& b1) const{
 		}
 	}
 	return true;
+}
+bool BigInt::operator>(const BigInt& b1) const{
+	BigInt b2 = (*this);
+	if (b1.Maks.size() < b2.Maks.size()) {
+		return false;
+	}
+	if (b1.Maks.size() > b2.Maks.size()) {
+		return true;
+	}
+	for (int i = 0; i < b1.Maks.size(); ++i) {
+		if (b1.Maks[i] < b2.Maks[i]) {
+			return false;
+		}
+		if (b1.Maks[i] > b2.Maks[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+bool BigInt::operator>=(const BigInt& b1) const{
+	if (b1 == (*this)) {
+		return true;
+	}
+	return ((*this) > b1);
+}
+bool BigInt::operator<=(const BigInt& b1) const{
+	if (b1 == (*this)) {
+		return true;
+	}
+	return (b1 > (*this));
+}
+bool BigInt::operator<(const BigInt& b1) const{
+	return (b1 > (*this));
 }
 bool BigInt::operator!=(const BigInt& b1) const{
 	BigInt b2 = (*this);
@@ -104,7 +143,7 @@ bool Sravnenie(vector<int> b1, vector<int> b2) {
 		}
 	}
 }
-vector<int> BigInt::operator+ (const BigInt& other) const{
+BigInt BigInt::operator+ (const BigInt& other) const{
     BigInt Answer1 = (*this);
     BigInt Answer = (*this);
     bool b;
@@ -152,6 +191,33 @@ vector<int> BigInt::operator+ (const BigInt& other) const{
 		}
     }
 }
+BigInt BigInt::operator*(const BigInt& b1) const{
+	BigInt b2 = (*this), Answer = 0;
+	vector<int> v(b1.Maks.size() + b2.Maks.size() + 1, 0);
+	for (int i = 0; i < b2.Maks.size(); ++i) {
+		BigInt s = 0;
+		for (int j = 0; j < b2.Maks[i]; ++j) {
+			s = s + b1;
+		}
+		for (int j = i; j < i + s.Maks.size(); ++j) {
+			v[j] = v[j] + s.Maks[j - i];
+		}
+		for (int i = 0; i < v.size() - 1; ++i) {
+			if (v[i] > 9) {
+				v[i + 1] = v[i + 1] + v[i] / 10;
+				v[i] = v[i] % 10;
+			}
+		}
+	}
+	while (v[v.size() - 1] == 0) {
+		v.pop_back();
+	}
+	Answer.Maks = v;
+	Answer.Znak = (b1.Znak & b2.Znak);
+}
+BigInt BigInt::operator%(const BigInt& b1) const{
+	return 0;
+}
 std::string toString(const BigInt& value)
 {
     std::stringstream buf;
@@ -194,7 +260,7 @@ void check(long long x, long long y)
 
 void doCheckEqual(const BigInt& actual, const char* expected, size_t line)
 {
-    const auto str = toString(actual);
+    const std::string str = toString(actual);
     if (str != expected)
     {
         std::cout << "at line " << line << ": " << str << " != " << expected << '\n';
@@ -277,19 +343,19 @@ int main()
         }
     }
 
-    const int64_t step = std::numeric_limits<uint32_t>::max() / 99;
-    const int64_t lower = std::numeric_limits<int32_t>::min() + step;
-    const int64_t upper = std::numeric_limits<int32_t>::max() - step;
+    const long long step = std::numeric_limits<unsigned long long>::max() / 99;
+    const long long lower = std::numeric_limits<unsigned long long>::min() + step;
+    const long long upper = std::numeric_limits<unsigned long long>::max() - step;
 
-    for (int64_t i = lower; i < upper; i += step)
+    for (long long i = lower; i < upper; i += step)
     {
-        for (int64_t j = -99; j < 99; ++j)
+        for (long long j = -99; j < 99; ++j)
         {
             check(i, j);
         }
     }
 
-    const BigInt big1 = std::numeric_limits<int64_t>::max();
+    const BigInt big1 = std::numeric_limits<long long>::max();
     checkEqual(big1, "9223372036854775807");
 
     const BigInt big2 = big1 * big1;
