@@ -12,6 +12,8 @@ class BigInt {
 		BigInt(long long b);
 	    BigInt(const BigInt& copied);
 		BigInt& operator=(const BigInt& copied);
+		bool operator!=(BigInt) const;
+		bool operator==(BigInt) const;
 		friend ostream& operator<<(ostream&, BigInt);
 	    ~BigInt(){};
 		vector<int> operator+(BigInt) const;
@@ -45,6 +47,30 @@ ostream& operator<<(ostream& Out, BigInt x) {
 		Out << x.Maks[i];
 	}
 	return Out;
+}
+bool BigInt::operator==(BigInt b1) const{
+	BigInt b2 = (*this);
+	if (b1.Maks.size() != b2.Maks.size()) {
+		return false;
+	}
+	for (int i = 0; i < b1.Maks.size(); ++i) {
+		if (b1.Maks[i] != b2.Maks[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+bool BigInt::operator!=(BigInt b1) const{
+	BigInt b2 = (*this);
+	if (b1.Maks.size() == b2.Maks.size()) {
+		return false;
+	}
+	for (int i = 0; i < b1.Maks.size(); ++i) {
+		if (b1.Maks[i] != b2.Maks[i]) {
+			return true;
+		}
+	}
+	return false;
 }
 bool Sravnenie(vector<int> b1, vector<int> b2) {
 	if (b1.size() > b2.size()) {
@@ -89,7 +115,7 @@ vector<int> BigInt::operator+ (BigInt other) const{
 	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
         	}
-        	int i = other.size(); 
+        	int i = other.Maks.size(); 
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -101,7 +127,7 @@ vector<int> BigInt::operator+ (BigInt other) const{
 	            Answer.Maks[i] = (-b + other.Maks[i] - Answer1.Maks[i] + 10) % 10;
     	        b = ((-b - Answer1.Maks[i] + other.Maks[i]) < 0);
         	}
-        	int i = other.size(); 
+        	int i = other.Maks.size(); 
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -117,12 +143,12 @@ std::string toString(const BigInt& value)
     return buf.str();
 }
 
-void check(int64_t x, int64_t y)
+void check(long long x, long long y)
 {
     const BigInt bigX = x;
     const BigInt bigY = y;
 
-    if (bigX + bigY != BigInt(x + y))
+    if ((bigX + bigY) != BigInt(x + y))
     {
         std::cout << x << " + " << y << " != " << x + y << " got " << bigX + bigY << '\n';
     }
