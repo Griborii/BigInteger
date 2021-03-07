@@ -12,13 +12,14 @@ class BigInt {
 		BigInt(long long b);
 	    BigInt(const BigInt& copied);
 		BigInt& operator=(const BigInt& copied);
-		bool operator!=(BigInt) const;
-		bool operator==(BigInt) const;
+		BigInt& operator=(long long);
+		bool operator!=(const BigInt&) const;
+		bool operator==(const BigInt&) const;
 		friend ostream& operator<<(ostream&, BigInt);
 	    ~BigInt(){};
-		vector<int> operator+(BigInt) const;
-		vector<int> operator-(BigInt) const;
-		vector<int> operator*(BigInt) const;
+		vector<int> operator+(const BigInt&) const;
+		vector<int> operator-(const BigInt&) const;
+		vector<int> operator*(const BigInt&) const;
 	private:
 	    bool Znak;
 		vector<int> Maks;
@@ -42,13 +43,28 @@ BigInt::BigInt(const BigInt& copied) {
 BigInt& BigInt::operator=(const BigInt& copied) {
     return *this;
 }
+BigInt& BigInt::operator=(long long n) {
+	BigInt b = (*this);
+	if (n > 0) {
+		b.Znak = true;
+	}
+	else {
+		b.Znak = false;
+		n = -n;
+	}
+    while (n > 0) {
+    	b.Maks.push_back(n % 10);
+    	n = n / 10;
+	}
+	return b;
+}
 ostream& operator<<(ostream& Out, BigInt x) {
 	for (int i = 0; i < x.Maks.size(); ++i) {
 		Out << x.Maks[i];
 	}
 	return Out;
 }
-bool BigInt::operator==(BigInt b1) const{
+bool BigInt::operator==(const BigInt& b1) const{
 	BigInt b2 = (*this);
 	if (b1.Maks.size() != b2.Maks.size()) {
 		return false;
@@ -60,7 +76,7 @@ bool BigInt::operator==(BigInt b1) const{
 	}
 	return true;
 }
-bool BigInt::operator!=(BigInt b1) const{
+bool BigInt::operator!=(const BigInt& b1) const{
 	BigInt b2 = (*this);
 	if (b1.Maks.size() == b2.Maks.size()) {
 		return false;
@@ -88,7 +104,7 @@ bool Sravnenie(vector<int> b1, vector<int> b2) {
 		}
 	}
 }
-vector<int> BigInt::operator+ (BigInt other) const{
+vector<int> BigInt::operator+ (const BigInt& other) const{
     BigInt Answer1 = (*this);
     BigInt Answer = (*this);
     bool b;
