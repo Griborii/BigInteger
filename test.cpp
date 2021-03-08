@@ -10,8 +10,8 @@ class BigInt {
 		BigInt();
 		BigInt(long long b);
 	    BigInt(const BigInt& copied);
-		BigInt& operator=(BigInt& copied) const;
-		BigInt& operator=(long long&) const;
+		BigInt& operator=(const BigInt& copied);
+		BigInt& operator=(const long long);
 	    ~BigInt(){};
 		friend ostream& operator<<(ostream&, BigInt);
 		bool operator!=(const BigInt&) const;
@@ -49,10 +49,10 @@ BigInt::BigInt(const BigInt& copied) {
     Maks = copied.Maks;
     Znak = copied.Znak;
 }
-BigInt& BigInt::operator=(BigInt& copied) const{
-    return copied;
+BigInt& BigInt::operator=(const BigInt& copied){
+    return (*this);
 }
-BigInt& BigInt::operator=(long long& n) const{
+BigInt& BigInt::operator=(long long n){
 	BigInt Answer = 0;
 	if (n >= 0) {
 		Answer.Znak = true;
