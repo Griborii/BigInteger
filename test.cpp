@@ -8,21 +8,20 @@ using namespace std;
 class BigInt {
 	public:
 		BigInt(){};
-		BigInt(vector<int>, bool);
 		BigInt(long long b);
 	    BigInt(const BigInt& copied);
 		BigInt& operator=(const BigInt& copied);
 		BigInt& operator=(long long);
+	    ~BigInt(){};
+		friend ostream& operator<<(ostream&, BigInt);
 		bool operator!=(const BigInt&) const;
 		bool operator==(const BigInt&) const;
-		friend ostream& operator<<(ostream&, BigInt);
-	    ~BigInt(){};
 		BigInt operator+(const BigInt&) const;
 		BigInt operator-(const BigInt&) const;
-		BigInt operator-() const{};
+		BigInt operator-() const;
 		BigInt operator*(const BigInt&) const;
 		bool operator>(const BigInt&) const;
-		BigInt operator/(const BigInt&) const{};
+		BigInt operator/(const BigInt&) const;
 		bool operator<(const BigInt&) const;
 		bool operator<=(const BigInt&) const;
 		bool operator>=(const BigInt&) const;
@@ -40,29 +39,27 @@ BigInt::BigInt(long long n) {
     }
     Maks = Bob;
 }
-BigInt::BigInt(vector<int> v, bool z) {
-    Maks = v;
-    Znak = z;
-}
 BigInt::BigInt(const BigInt& copied) {
     Maks = copied.Maks;
+    Znak = copied.Znak;
 }
 BigInt& BigInt::operator=(const BigInt& copied) {
     return *this;
 }
 BigInt& BigInt::operator=(long long n) {
-	if (n > 0) {
-		(*this).Znak = true;
+	BigInt Answer = (*this);
+	if (n >= 0) {
+		Answer.Znak = true;
 	}
 	else {
-		(*this).Znak = false;
+		Answer.Znak = false;
 		n = -n;
 	}
     while (n > 0) {
-    	(*this).Maks.push_back(n % 10);
+    	Answer.Maks.push_back(n % 10);
     	n = n / 10;
 	}
-	return*this;
+	return Answer;
 }
 ostream& operator<<(ostream& Out, BigInt x) {
 	for (int i = 0; i < x.Maks.size(); ++i) {
@@ -143,9 +140,66 @@ bool Sravnenie(vector<int> b1, vector<int> b2) {
 		}
 	}
 }
-BigInt BigInt::operator+ (const BigInt& other) const{
+BigInt BigInt::operator-() const{
+	BigInt Answer = (*this);
+	if (Answer.Znak == true) {
+		Answer.Znak = false;
+	}
+	else {
+		Answer.Znak = true;
+	}
+}
+BigInt BigInt::operator+(const BigInt& other) const{
     BigInt Answer1 = (*this);
     BigInt Answer = (*this);
+    bool b;
+    if (Answer1.Znak == other.Znak) {
+        for (int i = 0; i < min(Answer1.Maks.size(), other.Maks.size()); ++i) {
+            Answer.Maks[i] = (b + Answer1.Maks[i] + other.Maks[i]) % 10;
+            b = ((b + Answer1.Maks[i] + other.Maks[i]) >= 10);
+        }
+
+        if (Answer1.Maks.size() < other.Maks.size()) {
+            for (int i = Answer1.Maks.size(); i < other.Maks.size(); ++i) {
+                Answer.Maks.push_back((other.Maks[i] + b) % 10);
+                b = (other.Maks[i] + b >= 10);
+            }
+        }
+        if (b == 1) {
+                Answer.Maks.push_back(1);
+        }
+        Answer.Znak = Answer1.Znak;
+    }
+    else {
+		if (Sravnenie(Answer1.Maks, other.Maks)) {
+			for (int i = 0; i < other.Maks.size(); ++i) {
+	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
+        	}
+        	int i = other.Maks.size(); 
+        	while (b == 1) {
+        		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
+    	        ++i;
+			}
+		}
+		else {
+			for (int i = 0; i < Answer1.Maks.size(); ++i) {
+	            Answer.Maks[i] = (-b + other.Maks[i] - Answer1.Maks[i] + 10) % 10;
+    	        b = ((-b - Answer1.Maks[i] + other.Maks[i]) < 0);
+        	}
+        	int i = other.Maks.size(); 
+        	while (b == 1) {
+        		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
+    	        ++i;
+			}
+		}
+    }
+}
+BigInt BigInt::operator-(const BigInt& other) const{
+    BigInt Answer1 = -(*this);
+    BigInt Answer = -(*this);
     bool b;
     if (Answer1.Znak == other.Znak) {
         for (int i = 0; i < min(Answer1.Maks.size(), other.Maks.size()); ++i) {
@@ -215,6 +269,9 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	Answer.Maks = v;
 	Answer.Znak = (b1.Znak & b2.Znak);
 }
+BigInt BigInt::operator/(const BigInt& b1) const{
+	
+}
 BigInt BigInt::operator%(const BigInt& b1) const{
 	return 0;
 }
@@ -280,12 +337,10 @@ int main()
     checkEqual(z, "0");
 
     checkEqual(BigInt(-10), "-10");
-
     checkTrue(x == y);
     checkTrue(y == x);
     checkTrue(x != z);
     checkTrue(z != x);
-
     z = y;
     checkEqual(z, "3");
 
