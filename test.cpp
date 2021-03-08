@@ -7,11 +7,11 @@ using namespace std;
 
 class BigInt {
 	public:
-		BigInt(){};
+		BigInt();
 		BigInt(long long b);
 	    BigInt(const BigInt& copied);
-		BigInt& operator=(const BigInt& copied);
-		BigInt& operator=(long long);
+		BigInt& operator=(BigInt& copied) const;
+		BigInt& operator=(long long&) const;
 	    ~BigInt(){};
 		friend ostream& operator<<(ostream&, BigInt);
 		bool operator!=(const BigInt&) const;
@@ -30,6 +30,12 @@ class BigInt {
 	    bool Znak;
 		vector<int> Maks;
 };
+BigInt::BigInt() {
+    while (Maks.size() != 0) {
+    	Maks.pop_back();
+	}
+	Znak = true;
+}
 BigInt::BigInt(long long n) {
     vector<int> Bob(0);
     Znak = (n >= 0);
@@ -43,11 +49,11 @@ BigInt::BigInt(const BigInt& copied) {
     Maks = copied.Maks;
     Znak = copied.Znak;
 }
-BigInt& BigInt::operator=(const BigInt& copied) {
-    return *this;
+BigInt& BigInt::operator=(BigInt& copied) const{
+    return copied;
 }
-BigInt& BigInt::operator=(long long n) {
-	BigInt Answer = (*this);
+BigInt& BigInt::operator=(long long& n) const{
+	BigInt Answer = 0;
 	if (n >= 0) {
 		Answer.Znak = true;
 	}
@@ -58,6 +64,9 @@ BigInt& BigInt::operator=(long long n) {
     while (n > 0) {
     	Answer.Maks.push_back(n % 10);
     	n = n / 10;
+	}
+	for (int i = 0; i < Answer.Maks.size(); ++i) {
+		cout << Answer.Maks[i];
 	}
 	return Answer;
 }
@@ -116,6 +125,9 @@ bool BigInt::operator!=(const BigInt& b1) const{
 	BigInt b2 = (*this);
 	if (b1.Maks.size() == b2.Maks.size()) {
 		return false;
+	}
+	if (b1.Maks.size() != b2.Maks.size()) {
+		return true;
 	}
 	for (int i = 0; i < b1.Maks.size(); ++i) {
 		if (b1.Maks[i] != b2.Maks[i]) {
@@ -251,7 +263,7 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	for (int i = 0; i < b2.Maks.size(); ++i) {
 		BigInt s = 0;
 		for (int j = 0; j < b2.Maks[i]; ++j) {
-			s = s + b1;
+			s = (s + b1);
 		}
 		for (int j = i; j < i + s.Maks.size(); ++j) {
 			v[j] = v[j] + s.Maks[j - i];
@@ -335,7 +347,6 @@ int main()
     checkEqual(y, "3");
     BigInt z;
     checkEqual(z, "0");
-
     checkEqual(BigInt(-10), "-10");
     checkTrue(x == y);
     checkTrue(y == x);
