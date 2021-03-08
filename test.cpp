@@ -46,29 +46,28 @@ BigInt::BigInt(long long n) {
     Maks = Bob;
 }
 BigInt::BigInt(const BigInt& copied) {
-    Maks = copied.Maks;
-    Znak = copied.Znak;
+    return (*this);
 }
 BigInt& BigInt::operator=(const BigInt& copied){
+	for (int i = 0; i < copied.Maks.size(); ++i) {
+		Maks.push_bask(copied.Maks[i]);
+	}
+	Znak = copied.Znak;
     return (*this);
 }
 BigInt& BigInt::operator=(long long n){
-	BigInt Answer = 0;
 	if (n >= 0) {
-		Answer.Znak = true;
+		Znak = true;
 	}
 	else {
-		Answer.Znak = false;
+		Znak = false;
 		n = -n;
 	}
     while (n > 0) {
-    	Answer.Maks.push_back(n % 10);
+    	Maks.push_back(n % 10);
     	n = n / 10;
 	}
-	for (int i = 0; i < Answer.Maks.size(); ++i) {
-		cout << Answer.Maks[i];
-	}
-	return Answer;
+	return (*this);
 }
 ostream& operator<<(ostream& Out, BigInt x) {
 	for (int i = 0; i < x.Maks.size(); ++i) {
