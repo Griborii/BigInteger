@@ -36,9 +36,13 @@ BigInt::BigInt() {
 	}
 	Znak = true;
 }
-BigInt::BigInt(long long n) {
+BigInt::BigInt(long long n1) {
+    long long n = n1;
     vector<int> Bob(0);
     Znak = (n >= 0);
+    if (n < 0) {
+        n = -n;
+    }
     while (n > 0) {
         Bob.push_back (n % 10);
         n = n / 10;
@@ -52,7 +56,7 @@ BigInt::BigInt(const BigInt& copied) {
     for (int i = 0; i < copied.Maks.size(); ++i) {
         Maks.push_back(copied.Maks[i]);
     }
-
+    Znak = copied.Znak;
 }
 BigInt& BigInt::operator=(const BigInt& copied){
     while (Maks.size() > 0) {
@@ -65,9 +69,7 @@ BigInt& BigInt::operator=(const BigInt& copied){
     return (*this);
 }
 BigInt& BigInt::operator=(long long n){
-    while (Maks.size() > 0) {
-        Maks.pop_back();
-    }
+    Maks.clear();
 	if (n >= 0) {
 		Znak = true;
 	}
@@ -82,6 +84,9 @@ BigInt& BigInt::operator=(long long n){
 	return (*this);
 }
 ostream& operator<<(ostream& Out, BigInt x) {
+    if (x.Maks.size() == 0) {
+        Out << 0;
+    }
     if (x.Znak == false) {
         Out << "-";
     }
