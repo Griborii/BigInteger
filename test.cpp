@@ -46,16 +46,28 @@ BigInt::BigInt(long long n) {
     Maks = Bob;
 }
 BigInt::BigInt(const BigInt& copied) {
-    return (*this);
+    while (Maks.size() > 0) {
+        Maks.pop_back();
+    }
+    for (int i = 0; i < copied.Maks.size(); ++i) {
+        Maks.push_back(copied.Maks[i]);
+    }
+
 }
 BigInt& BigInt::operator=(const BigInt& copied){
+    while (Maks.size() > 0) {
+        Maks.pop_back();
+    }
 	for (int i = 0; i < copied.Maks.size(); ++i) {
-		Maks.push_bask(copied.Maks[i]);
+		Maks.push_back(copied.Maks[i]);
 	}
 	Znak = copied.Znak;
     return (*this);
 }
 BigInt& BigInt::operator=(long long n){
+    while (Maks.size() > 0) {
+        Maks.pop_back();
+    }
 	if (n >= 0) {
 		Znak = true;
 	}
@@ -70,7 +82,10 @@ BigInt& BigInt::operator=(long long n){
 	return (*this);
 }
 ostream& operator<<(ostream& Out, BigInt x) {
-	for (int i = 0; i < x.Maks.size(); ++i) {
+    if (x.Znak == false) {
+        Out << "-";
+    }
+	for (int i = x.Maks.size() - 1; i >= 0; --i) {
 		Out << x.Maks[i];
 	}
 	return Out;
@@ -87,38 +102,51 @@ bool BigInt::operator==(const BigInt& b1) const{
 	}
 	return true;
 }
-bool BigInt::operator>(const BigInt& b1) const{
+bool BigInt::operator<(const BigInt& b1) const{
 	BigInt b2 = (*this);
-	if (b1.Maks.size() < b2.Maks.size()) {
+	if (b2 == b1) {
+        return false;
+	}
+	if (b1.Znak == 0 && b2.Znak == 1) {
 		return false;
 	}
-	if (b1.Maks.size() > b2.Maks.size()) {
+	if (b1.Znak == 1 && b2.Znak == 0) {
 		return true;
+	}
+    bool k = (b1.Znak ^ true);
+	if (b1.Maks.size() < b2.Maks.size()) {
+		return (k ^ false);
+	}
+	if (b1.Maks.size() > b2.Maks.size()) {
+		return (k ^ true);
 	}
 	for (int i = 0; i < b1.Maks.size(); ++i) {
 		if (b1.Maks[i] < b2.Maks[i]) {
-			return false;
+			return (k ^ false);
 		}
 		if (b1.Maks[i] > b2.Maks[i]) {
-			return true;
+			return (k ^ true);
 		}
 	}
 	return false;
-}
-bool BigInt::operator>=(const BigInt& b1) const{
-	if (b1 == (*this)) {
-		return true;
-	}
-	return ((*this) > b1);
 }
 bool BigInt::operator<=(const BigInt& b1) const{
 	if (b1 == (*this)) {
 		return true;
 	}
-	return (b1 > (*this));
+	return ((*this) < b1);
 }
-bool BigInt::operator<(const BigInt& b1) const{
-	return (b1 > (*this));
+bool BigInt::operator>=(const BigInt& b1) const{
+	if (b1 == (*this)) {
+		return true;
+	}
+	return (b1 < (*this));
+}
+bool BigInt::operator>(const BigInt& b1) const{
+    if (b1 == (*this)) {
+        return false;
+    }
+	return (b1 < (*this));
 }
 bool BigInt::operator!=(const BigInt& b1) const{
 	BigInt b2 = (*this);
@@ -187,7 +215,7 @@ BigInt BigInt::operator+(const BigInt& other) const{
 	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
         	}
-        	int i = other.Maks.size(); 
+        	int i = other.Maks.size();
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -199,7 +227,7 @@ BigInt BigInt::operator+(const BigInt& other) const{
 	            Answer.Maks[i] = (-b + other.Maks[i] - Answer1.Maks[i] + 10) % 10;
     	        b = ((-b - Answer1.Maks[i] + other.Maks[i]) < 0);
         	}
-        	int i = other.Maks.size(); 
+        	int i = other.Maks.size();
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -235,7 +263,7 @@ BigInt BigInt::operator-(const BigInt& other) const{
 	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
         	}
-        	int i = other.Maks.size(); 
+        	int i = other.Maks.size();
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -247,7 +275,7 @@ BigInt BigInt::operator-(const BigInt& other) const{
 	            Answer.Maks[i] = (-b + other.Maks[i] - Answer1.Maks[i] + 10) % 10;
     	        b = ((-b - Answer1.Maks[i] + other.Maks[i]) < 0);
         	}
-        	int i = other.Maks.size(); 
+        	int i = other.Maks.size();
         	while (b == 1) {
         		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
     	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
@@ -281,7 +309,7 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	Answer.Znak = (b1.Znak & b2.Znak);
 }
 BigInt BigInt::operator/(const BigInt& b1) const{
-	
+
 }
 BigInt BigInt::operator%(const BigInt& b1) const{
 	return 0;
