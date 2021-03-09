@@ -97,6 +97,9 @@ ostream& operator<<(ostream& Out, BigInt x) {
 }
 bool BigInt::operator==(const BigInt& b1) const{
 	BigInt b2 = (*this);
+	if (b2.Maks.size() == 0 && b1.Maks.size() == 0) {
+        return true;
+	}
 	if (b1.Maks.size() != b2.Maks.size()) {
 		return false;
 	}
@@ -407,14 +410,13 @@ int main()
     checkTrue(BigInt(50) <= x);
     checkTrue(BigInt(-500) <= x);
     checkTrue(BigInt(-500) <= BigInt(-200));
-
     checkTrue(x >= x);
     checkTrue(BigInt(200) >= x);
     checkTrue(x >= BigInt(50));
     checkTrue(x >= BigInt(-500));
     checkTrue(BigInt(-200) >= BigInt(-500));
     checkTrue(BigInt(0) == -BigInt(0));
-
+    cout << 0;
     checkEqual(BigInt(10) + BigInt(10), "20");
     checkEqual(BigInt(-10) + BigInt(10), "0");
     checkEqual(BigInt(10) + BigInt(-10), "0");
