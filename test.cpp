@@ -174,18 +174,17 @@ bool Sravnenie(vector<int> b1, vector<int> b2) {
 	if (b1.size() > b2.size()) {
 		return true;
 	}
-	if (b1.size() < b2.size()) {
-		return false;
+	if (b1.size() > b2.size()) {
+		return true;
 	}
 	for (int i = b1.size() - 1; i >= 0; --i) {
 		if (b1[i] > b2[i]) {
 			return true;
 		}
-		if (b1[i] < b2[i]) {
+		if (b1[i] > b2[i]) {
 			return false;
 		}
 	}
-	return false;
 }
 BigInt BigInt::operator-() const{
 	BigInt Answer = (*this);
@@ -203,11 +202,8 @@ BigInt BigInt::operator-() const{
 BigInt BigInt::operator+(const BigInt& other) const{
     BigInt Answer1 = (*this);
     BigInt Answer = (*this);
-    bool b, u = false;
-    cout << 0;
+    bool b;
     if (Answer1.Znak == other.Znak) {
-    	cout << 1;
-    	b = 0;
         for (int i = 0; i < min(Answer1.Maks.size(), other.Maks.size()); ++i) {
             Answer.Maks[i] = (b + Answer1.Maks[i] + other.Maks[i]) % 10;
             b = ((b + Answer1.Maks[i] + other.Maks[i]) >= 10);
@@ -221,65 +217,45 @@ BigInt BigInt::operator+(const BigInt& other) const{
         if (b == 1) {
             Answer.Maks.push_back(1);
         }
-        u = Answer1.Znak;
+        Answer.Znak = Answer1.Znak;
     }
     else {
-    	cout << 2;
-    	b = 0;
-    	BigInt other1 = other;
-		if (Sravnenie(Answer1.Maks, other1.Maks)) {
-			cout << 3;
-			cout << other1 << " " << Answer << endl;
-			u = (other.Znak ^ true);
-			for (int i = 0; i < other1.Maks.size(); ++i) {
-	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10;
-    	        b = ((-b + Answer1.Maks[i] - other1.Maks[i]) < 0);
+		if (Sravnenie(Answer1.Maks, other.Maks)) {
+			for (int i = 0; i < other.Maks.size(); ++i) {
+	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
         	}
-        	int Q = other1.Maks.size();
+        	int i = other.Maks.size();
         	while (b == 1) {
-        		Answer.Maks[Q] = (-b + Answer1.Maks[Q] + 10) % 10;
-    	        b = ((-b + Answer1.Maks[Q]) < 0);
-    	        ++Q;
+        		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
+    	        ++i;
 			}
-			Answer.Znak = false;
 		}
 		else {
-			cout << 4;
-    		other1 = Answer1;
-    		Answer1 = other;
-			u = other.Znak;
-			for (int i = 0; i < other1.Maks.size(); ++i) {
-	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10;
-    	        b = ((-b + Answer1.Maks[i] - other1.Maks[i]) < 0);
+			for (int i = 0; i < Answer1.Maks.size(); ++i) {
+	            Answer.Maks[i] = (-b + other.Maks[i] - Answer1.Maks[i] + 10) % 10;
+    	        b = ((-b - Answer1.Maks[i] + other.Maks[i]) < 0);
         	}
-        	cout << 5;
-        	int Q = other1.Maks.size();
+        	int i = other.Maks.size();
         	while (b == 1) {
-        		Answer.Maks[Q] = (-b + Answer1.Maks[Q] + 10) % 10;
-    	        b = ((-b + Answer1.Maks[Q]) < 0);
-    	        ++Q;
+        		Answer.Maks[i] = (-b + Answer1.Maks[i] - other.Maks[i] + 10) % 10;
+    	        b = ((-b + Answer1.Maks[i] - other.Maks[i]) < 0);
+    	        ++i;
 			}
-			cout << 6;
-			Answer.Znak  = true;
 		}
     }
-    while (Answer.Maks.size() > 0 && Answer.Maks[Answer.Maks.size() - 1] == 0) {
+    while (Answer.Maks[Answer.Maks.size() - 1] == 0) {
     	Answer.Maks.pop_back();
 	}
-	Answer.Znak = u;
-	cout << 7;
 	if(Answer.Maks.size() == 0) {
 		Answer.Znak = true;
 		Answer.Maks.push_back(0);
 	}
-	cout << 8;
-	cout << " " << other << " ";
-	cout << 9;
     return Answer;
 }
 BigInt BigInt::operator-(const BigInt& other) const{
-    BigInt Answer1 = (*this);    
-    Answer1.Znak = (Answer1.Znak ^ true);
+    BigInt Answer1 = -(*this);    
     return -(Answer1 + other);
 }
 BigInt BigInt::operator*(const BigInt& b1) const{
@@ -414,14 +390,13 @@ int main()
     checkEqual(BigInt(-10) - BigInt(10), "-20");
     checkEqual(BigInt(10) - BigInt(-10), "20");
     checkEqual(BigInt(-10) - BigInt(-10), "0");
+
     checkEqual(BigInt(0) + BigInt(-1), "-1");
     checkEqual(BigInt(0) - BigInt(1), "-1");
     checkEqual(BigInt(100) - BigInt(100), "0");
     checkEqual(BigInt(99) - BigInt(100), "-1");
     checkEqual(BigInt(10) - BigInt(11), "-1");
-    cout << 0;
     checkEqual(BigInt(20) - BigInt(19), "1");
-    cout << 0;
     for (int i = -21; i <= 21; ++i)
     {
         for (int j = -21; j <= 21; ++j)
