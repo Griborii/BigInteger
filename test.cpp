@@ -269,11 +269,11 @@ BigInt BigInt::operator+(const BigInt& other) const{
 	Answer.Znak = u;
 	cout << 7;
 	if(Answer.Maks.size() == 0) {
-		Answer.Znak = true;s
+		Answer.Znak = true;
 		Answer.Maks.push_back(0);
 	}
 	cout << 8;
-	cout << " " << other << " ";
+	cout << " " << Answer << " " << other << " " << Answer1 << " ";
 	cout << 9;
     return Answer;
 }
