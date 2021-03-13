@@ -14,6 +14,7 @@ class BigInt {
 		BigInt& operator=(const long long);
 	    ~BigInt(){};
 		friend ostream& operator<<(ostream&, BigInt);
+		friend BigInt Module(BigInt);
 		bool operator!=(const BigInt&) const;
 		bool operator==(const BigInt&) const;
 		BigInt operator+(const BigInt&) const;
@@ -29,6 +30,8 @@ class BigInt {
 	private:
 	    bool Znak;
 		vector<int> Maks;
+		void Rever();
+		BigInt Moszhuhin(int, int);
 };
 BigInt::BigInt() {
     while (Maks.size() != 0) {
@@ -97,6 +100,11 @@ ostream& operator<<(ostream& Out, BigInt x) {
 	}
 	return Out;
 }
+BigInt Module (BigInt b1) {
+	BigInt Answer = b1;
+	Answer.Znak = true;
+	return Answer;
+}
 bool BigInt::operator==(const BigInt& b1) const{
 	BigInt b2 = (*this);
 	if (b2.Maks.size() == 0 && b1.Maks.size() == 0) {
@@ -139,6 +147,28 @@ bool BigInt::operator<(const BigInt& b1) const{
 		}
 	}
 	return false;
+}
+void BigInt::Rever() {
+	vector<int> v(0);
+	for (int i = 0; i < Maks.size(); ++i) {
+		v.push_back(Maks[i]);
+	}
+	for (int i = 0; i < Maks.size(); ++i) {
+		Maks[i] = v[Maks.size() - i - 1];
+	}
+}
+BigInt BigInt::Moszhuhin(int n2, int n1) {
+	vector<int> v(0);
+	for (int i = 0; i < n2; ++i) {
+		long long j = Maks.size() + i - n1 - n2;
+		v.push_back(Maks[Maks.size() + i - n1 - n2]);
+	}
+	BigInt Answer;
+	Answer.Maks.pop_back();
+	for (int i = 0; i < v.size(); ++i) {
+		Answer.Maks.push_back(v[i]);
+	}
+	return Answer; 
 }
 bool BigInt::operator<=(const BigInt& b1) const{
 	if (b1 == (*this)) {
@@ -202,14 +232,14 @@ BigInt BigInt::operator-() const{
 }
 BigInt BigInt::operator+(const BigInt& other) const{
     BigInt Answer1 = (*this);
-    BigInt Answer = (*this);
+    BigInt Answer;
+    Answer.Maks.pop_back();
     bool b, u = false;
-    cout << 0;
     if (Answer1.Znak == other.Znak) {
-    	cout << 1;
+
     	b = 0;
         for (int i = 0; i < min(Answer1.Maks.size(), other.Maks.size()); ++i) {
-            Answer.Maks[i] = (b + Answer1.Maks[i] + other.Maks[i]) % 10;
+            Answer.Maks.push_back((b + Answer1.Maks[i] + other.Maks[i]) % 10);
             b = ((b + Answer1.Maks[i] + other.Maks[i]) >= 10);
         }
         if (Answer1.Maks.size() < other.Maks.size()) {
@@ -218,63 +248,66 @@ BigInt BigInt::operator+(const BigInt& other) const{
                 b = (other.Maks[i] + b >= 10);
             }
         }
+		if (Answer1.Maks.size() > other.Maks.size()) {
+			
+            for (int i = other.Maks.size(); i < Answer1.Maks.size(); ++i) {
+                Answer.Maks.push_back((Answer1.Maks[i] + b) % 10);
+                b = (Answer1.Maks[i] + b >= 10);
+            }
+        }
         if (b == 1) {
             Answer.Maks.push_back(1);
         }
         u = Answer1.Znak;
     }
     else {
-    	cout << 2;
     	b = 0;
     	BigInt other1 = other;
 		if (Sravnenie(Answer1.Maks, other1.Maks)) {
-			cout << 3;
-			cout << other1 << " " << Answer << endl;
 			u = (other.Znak ^ true);
 			for (int i = 0; i < other1.Maks.size(); ++i) {
-	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10;
+	            Answer.Maks.push_back((-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10);
     	        b = ((-b + Answer1.Maks[i] - other1.Maks[i]) < 0);
         	}
         	int Q = other1.Maks.size();
-        	while (b == 1) {
-        		Answer.Maks[Q] = (-b + Answer1.Maks[Q] + 10) % 10;
+        	while (b == 1 || Q < Answer1.Maks.size()) {
+        		Answer.Maks.push_back((-b + Answer1.Maks[Q] + 10) % 10);
     	        b = ((-b + Answer1.Maks[Q]) < 0);
     	        ++Q;
 			}
 			Answer.Znak = false;
 		}
 		else {
-			cout << 4;
     		other1 = Answer1;
     		Answer1 = other;
 			u = other.Znak;
 			for (int i = 0; i < other1.Maks.size(); ++i) {
-	            Answer.Maks[i] = (-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10;
+	            Answer.Maks.push_back((-b + Answer1.Maks[i] - other1.Maks[i] + 10) % 10);
     	        b = ((-b + Answer1.Maks[i] - other1.Maks[i]) < 0);
         	}
-        	cout << 5;
         	int Q = other1.Maks.size();
-        	while (b == 1) {
-        		Answer.Maks[Q] = (-b + Answer1.Maks[Q] + 10) % 10;
+        	while (b == 1 || Q < Answer1.Maks.size()) {
+        		Answer.Maks.push_back((-b + Answer1.Maks[Q] + 10) % 10);
     	        b = ((-b + Answer1.Maks[Q]) < 0);
     	        ++Q;
 			}
-			cout << 6;
 			Answer.Znak  = true;
 		}
     }
-    while (Answer.Maks.size() > 0 && Answer.Maks[Answer.Maks.size() - 1] == 0) {
-    	Answer.Maks.pop_back();
+    while (Answer.Maks.size() > 0) {
+    	if (Answer.Maks[Answer.Maks.size() - 1] == 0) {
+    		Answer.Maks.pop_back();
+		}
+    	else {
+    		break;
+		}
 	}
 	Answer.Znak = u;
-	cout << 7;
 	if(Answer.Maks.size() == 0) {
 		Answer.Znak = true;
 		Answer.Maks.push_back(0);
 	}
-	cout << 8;
-	cout << " " << Answer << " " << other << " " << Answer1 << " ";
-	cout << 9;
+	
     return Answer;
 }
 BigInt BigInt::operator-(const BigInt& other) const{
@@ -284,6 +317,9 @@ BigInt BigInt::operator-(const BigInt& other) const{
 }
 BigInt BigInt::operator*(const BigInt& b1) const{
 	BigInt b2 = (*this), Answer = 0;
+	if (b2 == 0 || b1 == 0) {
+		return 0;
+	}
 	vector<int> v(b1.Maks.size() + b2.Maks.size() + 1, 0);
 	for (int i = 0; i < b2.Maks.size(); ++i) {
 		BigInt s = 0;
@@ -303,11 +339,36 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	while (v[v.size() - 1] == 0) {
 		v.pop_back();
 	}
-	Answer.Maks = v;
-	Answer.Znak = (b1.Znak & b2.Znak);
+	Answer.Maks.pop_back();
+	for (int i = 0; i < v.size(); ++i) {
+		Answer.Maks.push_back(v[i]);
+	}
+	Answer.Znak = (b1.Znak ^ b2.Znak);
+	return Answer;
 }
-BigInt BigInt::operator/(const BigInt& b1) const{
+BigInt BigInt::operator/(const BigInt& b0) const{
+	BigInt b1 = b0;
+	BigInt b2 = (*this);
+	BigInt Answer;
+	for (int i = 0; i <= b2.Maks.size() - b1.Maks.size(); ++i) {
+		BigInt Dima = b2.Moszhuhin(b1.Maks.size(), i);
+		int k = 0;
+		while (Dima >=  Module(b1)) {
+			++k;
+			Dima = Dima - Module(b1);
+		}
 
+		Answer.Maks.push_back(k);
+	}
+	Answer.Rever();
+	while (Answer.Maks[Answer.Maks.size() - 1] == 0) {
+		Answer.Maks.pop_back();
+	}
+	Answer.Znak = (b1.Znak ^ b1.Znak);
+	if (Answer.Maks.size() == 0) {
+		return 0;
+	}
+	return Answer;
 }
 BigInt BigInt::operator%(const BigInt& b1) const{
 	return 0;
@@ -326,32 +387,27 @@ void check(long long x, long long y)
 
     if ((bigX + bigY) != BigInt(x + y))
     {
-        std::cout << x << " + " << y << " != " << x + y << " got " << bigX + bigY << '\n';
+        std::cout << x << " + " << y << " == " << x + y << " got " << bigX + bigY << '\n';
     }
 
     if (bigX - bigY != BigInt(x - y))
     {
-        std::cout << x << " - " << y << " != " << x - y << " got " << bigX - bigY << '\n';
+        std::cout << x << " - " << y << " == " << x - y << " got " << bigX - bigY << '\n';
     }
 
     if (bigX * bigY != BigInt(x * y))
     {
-        std::cout << x << " * " << y << " != " << x * y << " got " << bigX * bigY << '\n';
+        std::cout << x << " * " << y << " == " << x * y << " got " << bigX * bigY << '\n';
     }
-
     if (x != 0 && y != 0)
     {
         if (bigX / bigY != BigInt(x / y))
         {
             std::cout << x << " / " << y << " != " << x / y << " got " << bigX / bigY << '\n';
         }
-        if (bigX % bigY != BigInt(x % y))
-        {
-            std::cout << x << " % " << y << " != " << x % y << " got " << bigX % bigY << '\n';
-        }
+        
     }
 }
-
 void doCheckEqual(const BigInt& actual, const char* expected, size_t line)
 {
     const std::string str = toString(actual);
@@ -405,7 +461,6 @@ int main()
     BigInt z1(0);
     BigInt z2 = -z1;
     checkTrue(BigInt(0) == -BigInt(0));
-    
     checkEqual(BigInt(10) + BigInt(10), "20");
     checkEqual(BigInt(-10) + BigInt(10), "0");
     checkEqual(BigInt(10) + BigInt(-10), "0");
@@ -419,9 +474,7 @@ int main()
     checkEqual(BigInt(100) - BigInt(100), "0");
     checkEqual(BigInt(99) - BigInt(100), "-1");
     checkEqual(BigInt(10) - BigInt(11), "-1");
-    cout << 0;
     checkEqual(BigInt(20) - BigInt(19), "1");
-    cout << 0;
     for (int i = -21; i <= 21; ++i)
     {
         for (int j = -21; j <= 21; ++j)
@@ -429,7 +482,6 @@ int main()
             check(i, j);
         }
     }
-
     const long long step = std::numeric_limits<unsigned long long>::max() / 99;
     const long long lower = std::numeric_limits<unsigned long long>::min() + step;
     const long long upper = std::numeric_limits<unsigned long long>::max() - step;
