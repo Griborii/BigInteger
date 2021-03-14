@@ -31,7 +31,7 @@ class BigInt {
 	    bool Znak;
 		vector<int> Maks;
 		void Rever();
-		BigInt Moszhuhin(int, int);
+		BigInt Moszhuhin(int);
 };
 BigInt::BigInt() {
     while (Maks.size() != 0) {
@@ -120,6 +120,28 @@ bool BigInt::operator==(const BigInt& b1) const{
 	}
 	return true;
 }
+void BigInt::Rever() {
+	vector<int> v(0);
+	for (int i = 0; i < Maks.size(); ++i) {
+		v.push_back(Maks[i]);
+	}
+	for (int i = 0; i < Maks.size(); ++i) {
+		Maks[i] = v[Maks.size() - i - 1];
+	}
+}
+BigInt BigInt::Moszhuhin(int n2) {
+	vector<int> v(0);
+	for (int i = 0; i < n2; ++i) {
+		long long j = Maks.size() + i - n2;
+		v.push_back(Maks[Maks.size() + i - n2]);
+	}
+	BigInt Answer;
+	Answer.Maks.pop_back();
+	for (int i = 0; i < v.size(); ++i) {
+		Answer.Maks.push_back(v[i]);
+	}
+	return Answer; 
+}
 bool BigInt::operator<(const BigInt& b1) const{
 	BigInt b2 = (*this);
 	if (b2 == b1) {
@@ -138,7 +160,7 @@ bool BigInt::operator<(const BigInt& b1) const{
 	if (b1.Maks.size() > b2.Maks.size()) {
 		return (k ^ true);
 	}
-	for (int i = 0; i < b1.Maks.size(); ++i) {
+	for (int i = b1.Maks.size() - 1; i >= 0; --i) {
 		if (b1.Maks[i] < b2.Maks[i]) {
 			return (k ^ false);
 		}
@@ -147,28 +169,6 @@ bool BigInt::operator<(const BigInt& b1) const{
 		}
 	}
 	return false;
-}
-void BigInt::Rever() {
-	vector<int> v(0);
-	for (int i = 0; i < Maks.size(); ++i) {
-		v.push_back(Maks[i]);
-	}
-	for (int i = 0; i < Maks.size(); ++i) {
-		Maks[i] = v[Maks.size() - i - 1];
-	}
-}
-BigInt BigInt::Moszhuhin(int n2, int n1) {
-	vector<int> v(0);
-	for (int i = 0; i < n2; ++i) {
-		long long j = Maks.size() + i - n1 - n2;
-		v.push_back(Maks[Maks.size() + i - n1 - n2]);
-	}
-	BigInt Answer;
-	Answer.Maks.pop_back();
-	for (int i = 0; i < v.size(); ++i) {
-		Answer.Maks.push_back(v[i]);
-	}
-	return Answer; 
 }
 bool BigInt::operator<=(const BigInt& b1) const{
 	if (b1 == (*this)) {
@@ -347,17 +347,23 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	return Answer;
 }
 BigInt BigInt::operator/(const BigInt& b0) const{
-	BigInt b1 = b0;
 	BigInt b2 = (*this);
+	BigInt b1 = b0;
 	BigInt Answer;
-	for (int i = 0; i <= b2.Maks.size() - b1.Maks.size(); ++i) {
-		BigInt Dima = b2.Moszhuhin(b1.Maks.size(), i);
-		int k = 0;
-		while (Dima >=  Module(b1)) {
+	long long k = b2.Maks.size() - b1.Maks.size();
+	BigInt Dima = b2.Moszhuhin(b1.Maks.size());
+	for (int i = 0; i <= k; ++i) {
+		int k = 0, k1 = b2.Maks.size() - b1.Maks.size() - i;
+		if (i != 0) {
+			Dima.Maks.insert(Dima.Maks.begin(), b2.Maks[k1]);
+		}
+		while (Dima >= Module(b1)) {
 			++k;
 			Dima = Dima - Module(b1);
 		}
-
+		while (Dima.Maks[Dima.Maks.size() - 1] == 0) {
+			Dima.Maks.pop_back();
+		}
 		Answer.Maks.push_back(k);
 	}
 	Answer.Rever();
@@ -371,7 +377,10 @@ BigInt BigInt::operator/(const BigInt& b0) const{
 	return Answer;
 }
 BigInt BigInt::operator%(const BigInt& b1) const{
-	return 0;
+	BigInt b2 = (*this);
+	BigInt Answer = (Module(b2) - (Module(b2) / Module(b1) * (Module(b1))));
+	Answer.Znak = (b1.Znak ^ b2.Znak);
+	return Answer; 
 }
 std::string toString(const BigInt& value)
 {
@@ -403,9 +412,12 @@ void check(long long x, long long y)
     {
         if (bigX / bigY != BigInt(x / y))
         {
-            std::cout << x << " / " << y << " != " << x / y << " got " << bigX / bigY << '\n';
+            std::cout << x << " / " << y << " == " << x / y << " got " << bigX / bigY << '\n';
         }
-        
+        if (bigX % bigY != BigInt(x % y))
+        {
+            std::cout << x << " % " << y << " != " << x % y << " got " << bigX % bigY << '\n';
+        }
     }
 }
 void doCheckEqual(const BigInt& actual, const char* expected, size_t line)
@@ -454,7 +466,7 @@ int main()
     checkTrue(BigInt(-500) <= x);
     checkTrue(BigInt(-500) <= BigInt(-200));
     checkTrue(x >= x);
-    checkTrue(BigInt(200) >= x);
+    checkTrue(BigInt(21) >= BigInt(19));
     checkTrue(x >= BigInt(50));
     checkTrue(x >= BigInt(-500));
     checkTrue(BigInt(-200) >= BigInt(-500));
@@ -493,7 +505,6 @@ int main()
             check(i, j);
         }
     }
-
     const BigInt big1 = std::numeric_limits<long long>::max();
     checkEqual(big1, "9223372036854775807");
 
