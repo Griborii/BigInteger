@@ -317,6 +317,7 @@ BigInt BigInt::operator-(const BigInt& other) const{
 }
 BigInt BigInt::operator*(const BigInt& b1) const{
 	BigInt b2 = (*this), Answer = 0;
+	Answer.Znak = (b1.Znak ^ b2.Znak);
 	if (b2 == 0 || b1 == 0) {
 		return 0;
 	}
@@ -343,7 +344,7 @@ BigInt BigInt::operator*(const BigInt& b1) const{
 	for (int i = 0; i < v.size(); ++i) {
 		Answer.Maks.push_back(v[i]);
 	}
-	Answer.Znak = (b1.Znak ^ b2.Znak);
+	
 	return Answer;
 }
 BigInt BigInt::operator/(const BigInt& b0) const{
@@ -394,25 +395,26 @@ void check(long long x, long long y)
     const BigInt bigX = x;
     const BigInt bigY = y;
 
-    if ((bigX + bigY) != BigInt(x + y))
+    if (bigX + bigY != BigInt(x + y))
     {
-        std::cout << x << " + " << y << " == " << x + y << " got " << bigX + bigY << '\n';
+        std::cout << x << " + " << y << " != " << x + y << " got " << bigX + bigY << '\n';
     }
 
     if (bigX - bigY != BigInt(x - y))
     {
-        std::cout << x << " - " << y << " == " << x - y << " got " << bigX - bigY << '\n';
+        std::cout << x << " - " << y << " != " << x - y << " got " << bigX - bigY << '\n';
     }
 
     if (bigX * bigY != BigInt(x * y))
     {
-        std::cout << x << " * " << y << " == " << x * y << " got " << bigX * bigY << '\n';
+        std::cout << x << " * " << y << " != " << x * y << " got " << bigX * bigY << '\n';
     }
+
     if (x != 0 && y != 0)
     {
         if (bigX / bigY != BigInt(x / y))
         {
-            std::cout << x << " / " << y << " == " << x / y << " got " << bigX / bigY << '\n';
+            std::cout << x << " / " << y << " != " << x / y << " got " << bigX / bigY << '\n';
         }
         if (bigX % bigY != BigInt(x % y))
         {
@@ -420,6 +422,7 @@ void check(long long x, long long y)
         }
     }
 }
+
 void doCheckEqual(const BigInt& actual, const char* expected, size_t line)
 {
     const std::string str = toString(actual);
@@ -440,53 +443,63 @@ int main()
     checkEqual(y, "3");
     BigInt z;
     checkEqual(z, "0");
+
     checkEqual(BigInt(-10), "-10");
+
     checkTrue(x == y);
     checkTrue(y == x);
     checkTrue(x != z);
     checkTrue(z != x);
+
     z = y;
     checkEqual(z, "3");
 
     x = 100;
     checkEqual(x, "100");
+
     checkTrue(!(x < x));
     checkTrue(x < 200);
     checkTrue(BigInt(50) < x);
     checkTrue(BigInt(-500) < x);
     checkTrue(BigInt(-500) < BigInt(-200));
+
     checkTrue(!(x > x));
     checkTrue(BigInt(200) > x);
     checkTrue(x > BigInt(50));
     checkTrue(x > BigInt(-500));
     checkTrue(BigInt(-200) > BigInt(-500));
+
     checkTrue(x <= x);
     checkTrue(x <= 200);
     checkTrue(BigInt(50) <= x);
     checkTrue(BigInt(-500) <= x);
     checkTrue(BigInt(-500) <= BigInt(-200));
+
     checkTrue(x >= x);
-    checkTrue(BigInt(21) >= BigInt(19));
+    checkTrue(BigInt(200) >= x);
     checkTrue(x >= BigInt(50));
     checkTrue(x >= BigInt(-500));
     checkTrue(BigInt(-200) >= BigInt(-500));
-    BigInt z1(0);
-    BigInt z2 = -z1;
     checkTrue(BigInt(0) == -BigInt(0));
+
     checkEqual(BigInt(10) + BigInt(10), "20");
     checkEqual(BigInt(-10) + BigInt(10), "0");
     checkEqual(BigInt(10) + BigInt(-10), "0");
     checkEqual(BigInt(-10) + BigInt(-10), "-20");
+
     checkEqual(BigInt(10) - BigInt(10), "0");
     checkEqual(BigInt(-10) - BigInt(10), "-20");
     checkEqual(BigInt(10) - BigInt(-10), "20");
     checkEqual(BigInt(-10) - BigInt(-10), "0");
+
     checkEqual(BigInt(0) + BigInt(-1), "-1");
     checkEqual(BigInt(0) - BigInt(1), "-1");
+
     checkEqual(BigInt(100) - BigInt(100), "0");
     checkEqual(BigInt(99) - BigInt(100), "-1");
     checkEqual(BigInt(10) - BigInt(11), "-1");
     checkEqual(BigInt(20) - BigInt(19), "1");
+
     for (int i = -21; i <= 21; ++i)
     {
         for (int j = -21; j <= 21; ++j)
@@ -497,7 +510,6 @@ int main()
     const long long step = std::numeric_limits<unsigned long long>::max() / 99;
     const long long lower = std::numeric_limits<unsigned long long>::min() + step;
     const long long upper = std::numeric_limits<unsigned long long>::max() - step;
-
     for (long long i = lower; i < upper; i += step)
     {
         for (long long j = -99; j < 99; ++j)
@@ -505,6 +517,8 @@ int main()
             check(i, j);
         }
     }
+    BigInt Ars1 = 1, Ars2 = 1, Ars3 = Ars1 * Ars2;
+    cout << Ars1 << " " << Ars2 << " " << Ars3 << endl;
     const BigInt big1 = std::numeric_limits<long long>::max();
     checkEqual(big1, "9223372036854775807");
 
